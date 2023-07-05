@@ -77,15 +77,34 @@ def get_src_row_info(src_copy_row):
     return nrows, src_copy_row_start, src_copy_row_start - 1
     
 
+
+excel_col_alphbet_num_map = {
+    'A': 1, 'B': 2, 'C': 3, 'D': 4,
+    'E': 5, 'F': 6, 'G': 7, 'H': 8,
+    'I': 9, 'J': 10, 'K': 11, 'L': 12,
+    'M': 13, 'N': 14, 'O': 15, 'P': 16,
+    'Q': 17, 'R': 18, 'S': 19, 'T': 20,
+    'U': 21, 'V': 22, 'W': 23, 'X': 24,
+    'Y': 25, 'Z': 26,
+}
+
+BASE = 26
+
 def get_src_column_info(src_copy_column):
     total = 0
     start = -1
     for part in src_copy_column.split(","):
         src_copy_columns = part.split(":")
         if len(src_copy_columns) == 1:
-            total += ord(src_copy_columns[0]) -  ord('A')
+            total += 1
         else:
-            total += ord(src_copy_columns[1]) - ord(src_copy_columns[0]) + 1
+            total += excel_column_alphbet_to_num(src_copy_columns[1]) - excel_column_alphbet_to_num(src_copy_columns[0]) + 1
         if start == -1:
-            start = ord(src_copy_columns[0]) - ord('A')
+            start = excel_column_alphbet_to_num(src_copy_columns[0]) - 1
     return total, start
+
+def excel_column_alphbet_to_num(s):
+    c = 0
+    for i in range(0, len(s)):
+        c += excel_col_alphbet_num_map[s[i]] * pow(BASE, len(s) - i - 1)
+    return c

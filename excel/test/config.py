@@ -1,5 +1,5 @@
 project_closeout_report_name = "xxx"
-template_dir = "/Users/honorluo/python-demos/python-basic/dataAnalysis/pandas/excel/test"
+template_dir = "/Users/honorluo/py-toolkit/excel/test"
 
 project_completion_status_cfg = {
     "src_file":  "testsrc.xlsx",
