@@ -4,13 +4,13 @@ def copy_sheet(src_dir, dst_dir, src_sheetname, dst_sheetname,
         src_copy_row, src_copy_column, dst_start_row, dst_start_column, 
         src_header_row=0, dst_header_row = 0, export_file_name="demo.xlsx"):
     
-    nrows, src_copy_row_start, src_row_start_index = get_src_row_info(src_copy_row)
+    nrows, src_row_start_index = get_src_row_info(src_copy_row)
     ncolumns, src_column_start_index = get_src_column_info(src_copy_column)
 
     pdSrc = pd.read_excel(src_dir,  
                             sheet_name=src_sheetname, 
                             usecols=src_copy_column, 
-                            skiprows=lambda x:x in range(0, src_copy_row_start - 1),
+                            skiprows=lambda x:x in range(0, src_row_start_index),
                             nrows=nrows,
                             header=src_header_row
                         )
@@ -21,25 +21,26 @@ def copy_sheet(src_dir, dst_dir, src_sheetname, dst_sheetname,
     last_row_index = dst_start_row + nrows - 1
     last_columns_index =  dst_start_column + ncolumns - 1
     current_index = len(pdDst.index)
-    column_real_len = max(last_columns_index, pdDst.shape[1])
+    column_real_len = max(last_columns_index + 1, pdDst.shape[1])
     while current_index < last_row_index:
         # add row
         pdDst.loc[current_index] = ['' for _ in range(column_real_len)]
         current_index += 1
     
     
+    i, j = src_row_start_index, src_column_start_index
     for r in range(dst_start_row - 1, last_row_index):
         for c in range(dst_start_column - 1, last_columns_index):
-            pdDst.iloc[r, c] = pdSrc.iloc[src_row_start_index, src_column_start_index]
-            src_column_start_index += 1
-        src_row_start_index += 1
-        src_column_start_index = src_copy_row_start - 1
+            pdDst.iloc[r, c] = pdSrc.iloc[i, j]
+            j += 1
+        i += 1
+        j = src_column_start_index
     
     pdDst.to_excel(excel_writer=export_file_name, sheet_name=dst_sheetname, index=False)
 
 
 def read_successive_cells(filepath, sheetname, rows, columns, seperator = "\r\n"):
-    nrows, _, row_start_index = get_src_row_info(rows)
+    nrows, row_start_index = get_src_row_info(rows)
     pds = pd.read_excel(filepath,  
                 sheet_name=sheetname, 
                 usecols=columns, 
@@ -74,11 +75,11 @@ def get_src_row_info(src_copy_row):
     src_copy_row_start = int(src_copy_row_array[0])
     src_copy_row_end = int(src_copy_row_array[1])
     nrows = src_copy_row_end - src_copy_row_start + 1
-    return nrows, src_copy_row_start, src_copy_row_start - 1
+    return nrows, src_copy_row_start - 1
     
 
 
-excel_col_alphbet_num_map = {
+excel_col_alphabet_num_map = {
     'A': 1, 'B': 2, 'C': 3, 'D': 4,
     'E': 5, 'F': 6, 'G': 7, 'H': 8,
     'I': 9, 'J': 10, 'K': 11, 'L': 12,
@@ -98,13 +99,13 @@ def get_src_column_info(src_copy_column):
         if len(src_copy_columns) == 1:
             total += 1
         else:
-            total += excel_column_alphbet_to_num(src_copy_columns[1]) - excel_column_alphbet_to_num(src_copy_columns[0]) + 1
+            total += excel_column_alphabet_to_num(src_copy_columns[1]) - excel_column_alphabet_to_num(src_copy_columns[0]) + 1
         if start == -1:
-            start = excel_column_alphbet_to_num(src_copy_columns[0]) - 1
+            start = excel_column_alphabet_to_num(src_copy_columns[0]) - 1
     return total, start
 
-def excel_column_alphbet_to_num(s):
+def excel_column_alphabet_to_num(s):
     c = 0
     for i in range(0, len(s)):
-        c += excel_col_alphbet_num_map[s[i]] * pow(BASE, len(s) - i - 1)
+        c += excel_col_alphabet_num_map[s[i]] * pow(BASE, len(s) - i - 1)
     return c
