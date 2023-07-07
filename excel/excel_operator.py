@@ -5,7 +5,7 @@ def copy_sheet(src_dir, dst_dir, src_sheetname, dst_sheetname,
         export_file_name="demo.xlsx"):
     
     nrows, src_row_start_index = get_src_row_info(src_copy_row)
-    ncolumns, src_column_start_index = get_src_column_info(src_copy_column)
+    ncolumns, _ = get_src_column_info(src_copy_column)
 
     pdSrc = pd.read_excel(src_dir,  
                             sheet_name=src_sheetname, 
@@ -28,13 +28,13 @@ def copy_sheet(src_dir, dst_dir, src_sheetname, dst_sheetname,
         current_index += 1
     
     
-    i, j = 0, src_column_start_index
+    i, j = 0, 0
     for r in range(dst_start_row - 1, last_row_index):
         for c in range(dst_start_column - 1, last_columns_index):
             pdDst.iloc[r, c] = pdSrc.iloc[i, j]
             j += 1
         i += 1
-        j = src_column_start_index
+        j = 0
     
     pdDst.to_excel(excel_writer=export_file_name, sheet_name=dst_sheetname, index=False, header=False)
 
