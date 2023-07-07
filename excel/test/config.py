@@ -8,9 +8,7 @@ project_completion_status_cfg = {
     "dst_sheetname" : "Sheet1",
     "src_copy_row": "1:3",
     "src_copy_column": "A:E",
-    "src_header_row": 0,
-    "dst_start_row": 2,
+    "dst_start_row": 1,
     "dst_start_column": 1,
-    "dst_header_row": 0,
     "export_file_name": "xxx_test.xlsx"
 }

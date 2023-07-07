@@ -7,4 +7,4 @@ import os
 if __name__ == '__main__':
     filepath = os.path.join(config.template_dir, "demo.xlsx")
     sheetname = 'Sheet1'
-    write_to_assigned_cell(filepath, sheetname, 5, 5, "pig")
+    write_to_assigned_cell(filepath, sheetname, 3, 6, "pig")

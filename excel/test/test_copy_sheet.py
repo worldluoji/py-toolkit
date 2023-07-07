@@ -15,8 +15,6 @@ if __name__ == '__main__':
         config.project_completion_status_cfg["src_copy_row"],
         config.project_completion_status_cfg["src_copy_column"],
         config.project_completion_status_cfg["dst_start_row"],
-        config.project_completion_status_cfg["dst_start_column"],
-        config.project_completion_status_cfg["src_header_row"],
-        config.project_completion_status_cfg["dst_header_row"],
+        config.project_completion_status_cfg["dst_start_column"]
     )
     

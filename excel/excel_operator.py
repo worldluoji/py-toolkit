@@ -2,7 +2,7 @@ import pandas as pd
 
 def copy_sheet(src_dir, dst_dir, src_sheetname, dst_sheetname,
         src_copy_row, src_copy_column, dst_start_row, dst_start_column, 
-        src_header_row=0, dst_header_row = 0, export_file_name="demo.xlsx"):
+        export_file_name="demo.xlsx"):
     
     nrows, src_row_start_index = get_src_row_info(src_copy_row)
     ncolumns, src_column_start_index = get_src_column_info(src_copy_column)
@@ -12,10 +12,10 @@ def copy_sheet(src_dir, dst_dir, src_sheetname, dst_sheetname,
                             usecols=src_copy_column, 
                             skiprows=lambda x:x in range(0, src_row_start_index),
                             nrows=nrows,
-                            header=src_header_row
+                            header=None
                         )
 
-    pdDst =  pd.read_excel(dst_dir, sheet_name=dst_sheetname, header=dst_header_row)
+    pdDst =  pd.read_excel(dst_dir, sheet_name=dst_sheetname, header=None)
     
     # dst file may be shorter than src file，then lead iloc out of bounds. The next code ensure pdDst will never out of bounds
     last_row_index = dst_start_row + nrows - 1
@@ -28,7 +28,7 @@ def copy_sheet(src_dir, dst_dir, src_sheetname, dst_sheetname,
         current_index += 1
     
     
-    i, j = src_row_start_index, src_column_start_index
+    i, j = 0, src_column_start_index
     for r in range(dst_start_row - 1, last_row_index):
         for c in range(dst_start_column - 1, last_columns_index):
             pdDst.iloc[r, c] = pdSrc.iloc[i, j]
@@ -36,7 +36,7 @@ def copy_sheet(src_dir, dst_dir, src_sheetname, dst_sheetname,
         i += 1
         j = src_column_start_index
     
-    pdDst.to_excel(excel_writer=export_file_name, sheet_name=dst_sheetname, index=False)
+    pdDst.to_excel(excel_writer=export_file_name, sheet_name=dst_sheetname, index=False, header=False)
 
 
 def read_successive_cells(filepath, sheetname, rows, columns, seperator = "\r\n"):
