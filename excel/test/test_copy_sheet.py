@@ -11,9 +11,10 @@ if __name__ == '__main__':
     dst_dir = os.path.join(config.template_dir, config.project_completion_status_cfg["dst_file"])
     dst_sheetname = config.project_completion_status_cfg["dst_sheetname"]
     
-    copy_sheet(src_dir, dst_dir, src_sheetname, dst_sheetname,
+    copy_sheet(src_dir, src_sheetname,
         config.project_completion_status_cfg["src_copy_row"],
         config.project_completion_status_cfg["src_copy_column"],
+        dst_dir, dst_sheetname,
         config.project_completion_status_cfg["dst_start_row"],
         config.project_completion_status_cfg["dst_start_column"]
     )

@@ -1,19 +1,31 @@
 import pandas as pd
 
-def copy_sheet(src_dir, dst_dir, src_sheetname, dst_sheetname,
-        src_copy_row, src_copy_column, dst_start_row, dst_start_column, 
+
+""" copy sheet partly from src_dir to dst_dir
+  :param src_dir: source excel file
+  :param src_sheetname: source excel's sheetname
+  :param src_copy_row: the source cell's rows
+  :param src_copy_column: the source cell's columns
+  
+  :param dst_dir: dst excel file
+  :param dst_sheetname: dest excel's sheetname
+  :param dst_start_row: dest start row to input content
+  :param dst_start_column: dest start column to input content
+  :export_file_name: the file to save the result
+
+  :return: None
+"""
+def copy_sheet(src_dir, src_sheetname, src_copy_row, src_copy_column, 
+        dst_dir, dst_sheetname, dst_start_row, dst_start_column, 
         export_file_name="demo.xlsx"):
     
     nrows, src_row_start_index = get_src_row_info(src_copy_row)
     ncolumns, _ = get_src_column_info(src_copy_column)
 
-    pdSrc = pd.read_excel(src_dir,  
-                            sheet_name=src_sheetname, 
-                            usecols=src_copy_column, 
-                            skiprows=lambda x:x in range(0, src_row_start_index),
-                            nrows=nrows,
-                            header=None
-                        )
+    pdSrc = pd.read_excel(src_dir, sheet_name=src_sheetname, 
+                          usecols=src_copy_column, 
+                          skiprows=lambda x:x in range(0, src_row_start_index),
+                          nrows=nrows, header=None)
 
     pdDst =  pd.read_excel(dst_dir, sheet_name=dst_sheetname, header=None)
     
@@ -39,6 +51,14 @@ def copy_sheet(src_dir, dst_dir, src_sheetname, dst_sheetname,
     pdDst.to_excel(excel_writer=export_file_name, sheet_name=dst_sheetname, index=False, header=False)
 
 
+""" read successive cells and combine their contents by seperator
+  :param filepath: target excel file
+  :param sheetname: excel's sheetname
+  :param rows: the target cell's rows
+  :param columns: the target cell's columns
+  :param seperator: use to connect each content in cells
+  :return: the content combined by seperator
+"""
 def read_successive_cells(filepath, sheetname, rows, columns, seperator = "\r\n"):
     nrows, row_start_index = get_src_row_info(rows)
     pds = pd.read_excel(filepath,  
@@ -57,6 +77,14 @@ def read_successive_cells(filepath, sheetname, rows, columns, seperator = "\r\n"
     
     return ret
 
+
+""" write content to the assigned cell
+  :param filepath: target excel file
+  :param sheetname: excel's sheetname
+  :param row: the target cell's row
+  :param column: the target cell's column
+  :return: None
+"""
 def write_to_assigned_cell(filepath, sheetname, row, column, content):
     pds = pd.read_excel(filepath,  
                 sheet_name=sheetname, 
@@ -69,7 +97,13 @@ def write_to_assigned_cell(filepath, sheetname, row, column, content):
     pds.iloc[row-1, column-1] = content
     pds.to_excel(excel_writer=filepath, sheet_name=sheetname, index=False, header=False)
         
-    
+
+""" parse the row info
+  :param src_copy_row: which rows to be parsed.
+  :return nrows: the num of rows
+  :return src_copy_row_start - 1: the start index of row
+  for example: input "1:2" would return 2,0
+"""
 def get_src_row_info(src_copy_row):
     src_copy_row_array = src_copy_row.split(":")
     src_copy_row_start = int(src_copy_row_array[0])
@@ -91,6 +125,12 @@ excel_col_alphabet_num_map = {
 
 BASE = 26
 
+""" parse the column info
+  :param src_copy_column: which columns to be parsed.
+  :return nrows: the num of columns
+  :return  start: the start index of column
+  for example: input "A:C" would return 3,0
+"""
 def get_src_column_info(src_copy_column):
     total = 0
     start = -1
