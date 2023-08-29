@@ -62,20 +62,17 @@ def copy_sheet(src_dir, src_sheetname, src_copy_row, src_copy_column,
 """
 def read_successive_cells(filepath, sheetname, rows, columns, seperator = "\r\n"):
     nrows, row_start_index = get_src_row_info(rows)
-    pds = pd.read_excel(filepath,  
-                sheet_name=sheetname, 
-                usecols=columns, 
-                skiprows=lambda x:x in range(0, row_start_index),
-                nrows=nrows,
-                header=None
-    )
+    ncolumns, column_start_index = get_src_column_info(columns)
 
+    wb = openpyxl.load_workbook(filename = filepath)
+    ws = wb[sheetname]
     ret = ''
-    r,c = pds.shape[0], pds.shape[1]
-    for i in range(r):
-        for j in range(c):
-            ret += str(pds.iloc[i, j]) + seperator
     
+    # min_row 等参数下标都是从1开始，不是从0开始
+    for row in ws.iter_rows(min_row = row_start_index + 1, max_row = row_start_index + nrows, min_col = column_start_index + 1, max_col = column_start_index + ncolumns):  
+        for cell in row:  
+            ret += cell.value + seperator
+
     return ret
 
 
