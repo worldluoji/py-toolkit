@@ -19,6 +19,13 @@ def read_xlsx_file(file_path, sheet_name):
         for cell in row:  
             print(cell.value, cell.font, cell.fill, cell.border, cell.alignment, cell.protection)
 
+    # 获取最大行数  
+    max_row = ws.max_row  
+    
+    # 获取最大列数  
+    max_column = ws.max_column
+    print(max_row, max_column)
+
     wb.save('output.xlsx')
 
   

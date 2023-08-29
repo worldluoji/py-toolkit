@@ -1,5 +1,6 @@
 import pandas as pd
-
+import openpyxl  
+from openpyxl.reader.excel import load_workbook  
 
 """ copy sheet partly from src_dir to dst_dir
   :param src_dir: source excel file
@@ -86,16 +87,17 @@ def read_successive_cells(filepath, sheetname, rows, columns, seperator = "\r\n"
   :return: None
 """
 def write_to_assigned_cell(filepath, sheetname, row, column, content):
-    pds = pd.read_excel(filepath,  
-                sheet_name=sheetname, 
-                header=None
-    )
-    r,c = pds.shape[0], pds.shape[1]
+
+    wb = openpyxl.load_workbook(filename = filepath)
+    ws = wb[sheetname]
+
+    r,c = ws.max_row, ws.max_column
     if row > r or column > c:
         raise ValueError("input param error")
     
-    pds.iloc[row-1, column-1] = content
-    pds.to_excel(excel_writer=filepath, sheet_name=sheetname, index=False, header=False)
+    # 在Openpyxl中，行和列的编号都是从1开始的，而不是从0开始
+    ws.cell(row=row, column=column).value = content
+    wb.save(filepath)
         
 
 """ parse the row info
