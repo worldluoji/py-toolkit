@@ -1,4 +1,3 @@
-import pandas as pd
 import openpyxl  
 from openpyxl.reader.excel import load_workbook  
 
@@ -21,36 +20,34 @@ def copy_sheet(src_dir, src_sheetname, src_copy_row, src_copy_column,
         export_file_name="demo.xlsx"):
     
     nrows, src_row_start_index = get_src_row_info(src_copy_row)
-    ncolumns, _ = get_src_column_info(src_copy_column)
+    ncolumns, src_column_start_index = get_src_column_info(src_copy_column)
 
-    pdSrc = pd.read_excel(src_dir, sheet_name=src_sheetname, 
-                          usecols=src_copy_column, 
-                          skiprows=lambda x:x in range(0, src_row_start_index),
-                          nrows=nrows, header=None)
+    wbSrc = openpyxl.load_workbook(filename = src_dir)
+    wsSrc = wbSrc[src_sheetname]
 
-    pdDst =  pd.read_excel(dst_dir, sheet_name=dst_sheetname, header=None)
+    wbDst = openpyxl.load_workbook(filename = dst_dir)
+    wsDst = wbDst[dst_sheetname]
+
+    last_row = dst_start_row + nrows - 1
+    last_columns =  dst_start_column + ncolumns - 1
+    rd,cd = wsDst.max_row, wsDst.max_column
+    if rd  < last_row:
+        wsDst.insert_rows(rd + 1, last_row - rd) # 在第rd 行之后插入last_row - rd 行
+    if cd < last_columns:
+        wsDst.insert_cols(cd + 1, last_columns - cd)
+
+    for row in wsDst.iter_rows(values_only=True):  
+        print(row)
     
-    # dst file may be shorter than src file，then lead iloc out of bounds. The next code ensure pdDst will never out of bounds
-    last_row_index = dst_start_row + nrows - 1
-    last_columns_index =  dst_start_column + ncolumns - 1
-    current_index = len(pdDst.index)
-    column_real_len = max(last_columns_index + 1, pdDst.shape[1])
-    while current_index < last_row_index:
-        # add row
-        pdDst.loc[current_index] = ['' for _ in range(column_real_len)]
-        current_index += 1
-    
-    
-    i, j = 0, 0
-    for r in range(dst_start_row - 1, last_row_index):
-        for c in range(dst_start_column - 1, last_columns_index):
-            pdDst.iloc[r, c] = pdSrc.iloc[i, j]
+    i, j = src_row_start_index + 1, src_column_start_index + 1
+    for r in range(dst_start_row, last_row + 1):
+        for c in range(dst_start_column, last_columns + 1):
+            wsDst.cell(row=r, column=c).value = wsSrc.cell(row=i, column=j).value
             j += 1
         i += 1
-        j = 0
-    
-    pdDst.to_excel(excel_writer=export_file_name, sheet_name=dst_sheetname, index=False, header=False)
+        j = src_column_start_index + 1
 
+    wbDst.save(export_file_name)
 
 """ read successive cells and combine their contents by seperator
   :param filepath: target excel file
