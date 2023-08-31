@@ -35,9 +35,6 @@ def copy_sheet(src_dir, src_sheetname, src_copy_row, src_copy_column,
         wsDst.insert_rows(rd + 1, last_row - rd) # 在第rd 行之后插入last_row - rd 行
     if cd < last_columns:
         wsDst.insert_cols(cd + 1, last_columns - cd)
-
-    for row in wsDst.iter_rows(values_only=True):  
-        print(row)
     
     i, j = src_row_start_index + 1, src_column_start_index + 1
     for r in range(dst_start_row, last_row + 1):
@@ -65,12 +62,13 @@ def read_successive_cells(filepath, sheetname, rows, columns, seperator = "\r\n"
     ws = wb[sheetname]
     ret = ''
     
+    # print(row_start_index + 1, row_start_index + nrows, column_start_index + 1, column_start_index + ncolumns)
     # min_row 等参数下标都是从1开始，不是从0开始
     for row in ws.iter_rows(min_row = row_start_index + 1, max_row = row_start_index + nrows, min_col = column_start_index + 1, max_col = column_start_index + ncolumns):  
-        for cell in row:  
+        for cell in row:
             ret += cell.value + seperator
 
-    return ret
+    return ret.strip(seperator)
 
 
 """ write content to the assigned cell
@@ -102,6 +100,8 @@ def write_to_assigned_cell(filepath, sheetname, row, column, content):
 """
 def get_src_row_info(src_copy_row):
     src_copy_row_array = src_copy_row.split(":")
+    if len(src_copy_row_array) == 1:
+        return 1, int(src_copy_row_array[0]) - 1
     src_copy_row_start = int(src_copy_row_array[0])
     src_copy_row_end = int(src_copy_row_array[1])
     nrows = src_copy_row_end - src_copy_row_start + 1
