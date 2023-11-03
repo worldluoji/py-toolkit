@@ -86,10 +86,32 @@ def write_to_assigned_cell(filepath, sheetname, row, column, content):
 
     r,c = ws.max_row, ws.max_column
     if row > r or column > c:
-        raise ValueError("input param error")
+        raise ValueError("row {0} or column {1} out of bounds".format(row, column))
     
     # 在Openpyxl中，行和列的编号都是从1开始的，而不是从0开始
     ws.cell(row=row, column=column).value = content
+    wb.save(filepath)
+
+
+"""
+    :param filepath: target excel file
+    :param sheetname: excel's sheetname
+    :cell_values: the list of the cells to be modified, for example: [(1, 2, 'A'), (3, 4, 'B')]
+    :return: None
+"""
+def write_to_cells(filepath, sheetname, cell_values):
+
+    wb = openpyxl.load_workbook(filename = filepath)
+    ws = wb[sheetname]
+
+    r,c = ws.max_row, ws.max_column
+    for v in cell_values:
+        row = v[0]
+        column = v[1]
+        if row > r or column > c:
+            raise ValueError("row {0} or column {1} out of bounds".format(row, column))
+        # 在Openpyxl中，行和列的编号都是从1开始的，而不是从0开始
+        ws.cell(row=row, column=column).value = v[2]
     wb.save(filepath)
         
 
