@@ -66,7 +66,8 @@ def read_successive_cells(filepath, sheetname, rows, columns, seperator = "\r\n"
     # min_row 等参数下标都是从1开始，不是从0开始
     for row in ws.iter_rows(min_row = row_start_index + 1, max_row = row_start_index + nrows, min_col = column_start_index + 1, max_col = column_start_index + ncolumns):  
         for cell in row:
-            ret += cell.value + seperator
+            if cell.value is not None:
+                ret += cell.value + seperator
 
     return ret.strip(seperator)
 
