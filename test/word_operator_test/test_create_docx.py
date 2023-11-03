@@ -1,4 +1,3 @@
-import pytest
 import os
 from docx import Document
 from docx.shared import Inches

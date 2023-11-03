@@ -1,5 +1,5 @@
 import sys 
-sys.path.append('../../src')
+sys.path.append('../src')
 from excel import excel_operator
 
 def test_get_src_column_info():

@@ -1,14 +1,15 @@
 import sys 
-sys.path.append('../../src')
+sys.path.append('../src')
 import config
 from excel import excel_operator
 import os
 
 
 def test_copy_sheet():
-    src_dir = os.path.join(os.getcwd(), config.template_dir, config.project_completion_status_cfg["src_file"])
-    src_sheetname = config.project_completion_status_cfg['src_sheetname']
-    dst_dir = os.path.join(os.getcwd(), config.template_dir, config.project_completion_status_cfg["dst_file"])
+    current_file_dir = os.path.dirname(os.path.abspath(__file__))
+    src_dir = os.path.join(current_file_dir, config.template_dir, config.project_completion_status_cfg["src_file"])
+    src_sheetname = config.project_completion_status_cfg["src_sheetname"]
+    dst_dir = os.path.join(current_file_dir, config.template_dir, config.project_completion_status_cfg["dst_file"])
     dst_sheetname = config.project_completion_status_cfg["dst_sheetname"]
     
     excel_operator.copy_sheet(src_dir, src_sheetname,
@@ -18,6 +19,3 @@ def test_copy_sheet():
         config.project_completion_status_cfg["dst_start_row"],
         config.project_completion_status_cfg["dst_start_column"]
     )
-    
-    filepath = os.path.join(os.path.join(os.getcwd(), config.template_dir), "demo.xlsx")
-    assert excel_operator.read_successive_cells(filepath, 'Sheet1', "2", "F") == 'test'

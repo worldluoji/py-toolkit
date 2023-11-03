@@ -15,7 +15,8 @@ pytest
 ```
 run a testcase
 ```
-pytest -s your_test_fine_name.py
+cd test
+pytest -s excel_operator_test/test_read_successive_cells.py
 ```
 '-s' means that print function has effect
 
