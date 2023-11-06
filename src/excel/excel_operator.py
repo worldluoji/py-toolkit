@@ -84,8 +84,7 @@ def write_to_cells(filepath, sheetname, cell_values, save_to=''):
 
     r,c = ws.max_row, ws.max_column
     for v in cell_values:
-        row = v[0]
-        column = v[1]
+        row,column = v[0], excel_column_alphabet_to_num(v[1])
         if row > r or column > c:
             raise ValueError("row {0} or column {1} out of bounds".format(row, column))
         # 在Openpyxl中，行和列的编号都是从1开始的，而不是从0开始
@@ -161,6 +160,11 @@ def get_src_column_info(src_copy_column):
     return total, start
 
 def excel_column_alphabet_to_num(s):
+    if isinstance(s, int):
+        return s
+    if not isinstance(s, str):
+        raise ValueError("s is not int or str")
+
     c = 0
     for i in range(0, len(s)):
         c += excel_col_alphabet_num_map[s[i]] * pow(BASE, len(s) - i - 1)
