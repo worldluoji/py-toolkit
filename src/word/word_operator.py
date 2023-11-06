@@ -1,6 +1,11 @@
 from docx import Document
 from docx.shared import RGBColor
-
+from enum import Enum  
+  
+class RETUENED_STATUS(Enum):  
+    SUCCESS = 0
+    NOT_CHANGED = 1
+    FAIL_TO_SAVE = 2
 
 '''add content in end of the doc
    :param doc: the word document to open
@@ -24,6 +29,9 @@ def add_to_end(doc, content, font='宋体', underline = False, color='', save_to
             doc.save(save_to)
         except Exception as e:
             print(e)
+            return RETUENED_STATUS.FAIL_TO_SAVE.value
+
+    return RETUENED_STATUS.SUCCESS.value
 
 '''add content before text in doc
    :param doc: the word document to open
@@ -35,10 +43,11 @@ def add_to_end(doc, content, font='宋体', underline = False, color='', save_to
    :param save_to: indicates where to save the modified doc
 '''
 def add_before_text(doc, keyword, content, stop = True, font='宋体', underline = False, color='', save_to= ''):
-    ret = None
+    ret = RETUENED_STATUS.NOT_CHANGED.value
     for para in doc.paragraphs:
         if para.text == keyword:
-            ret = para.insert_paragraph_before(content)
+            para.insert_paragraph_before(content)
+            ret = RETUENED_STATUS.SUCCESS.value
             if stop:
                 break
     
@@ -47,5 +56,25 @@ def add_before_text(doc, keyword, content, stop = True, font='宋体', underline
             doc.save(save_to)
         except Exception as e:
             print(e)
+            ret = RETUENED_STATUS.FAIL_TO_SAVE.value
     
+    return ret
+
+
+def replace_para(doc, keyword, content, stop = True, underline = False, color='', save_to= ''):
+    ret = RETUENED_STATUS.NOT_CHANGED.value
+    for para in doc.paragraphs:
+        if para.text == keyword:
+            para.text = content
+            ret = RETUENED_STATUS.SUCCESS.value
+            if stop:
+                break
+        
+    if (save_to is not None) and len(save_to) > 0:
+        try:
+            doc.save(save_to)
+        except Exception as e:
+            print(e)
+            ret = RETUENED_STATUS.FAIL_TO_SAVE.value
+
     return ret
