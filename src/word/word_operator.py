@@ -1,7 +1,9 @@
 from docx import Document
 from docx.shared import RGBColor
 from enum import Enum  
-  
+
+# https://python-docx.readthedocs.io/en/latest/#
+
 class RETUENED_STATUS(Enum):  
     SUCCESS = 0
     NOT_CHANGED = 1
