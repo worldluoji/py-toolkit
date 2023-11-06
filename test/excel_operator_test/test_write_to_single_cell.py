@@ -4,14 +4,12 @@ import config
 from excel import excel_operator
 import os
 
-def test_write_to_cells():
+def test_write_to_single_cell():
     current_file_dir = os.path.dirname(os.path.abspath(__file__))
     filepath = os.path.join(current_file_dir, config.template_dir, "demo.xlsx")
-    print(filepath)
     sheetname = 'Sheet1'
-    ret = excel_operator.write_to_cells(filepath, sheetname, [(3, 5, "cat"), (3, 4, "41")], save_to="test.xlsx")
+    excel_operator.write_to_single_cell(filepath, sheetname, 3, 5, "pig", save_to="test.xlsx")
     try:
-        assert ret == True
-        assert excel_operator.read_successive_cells("test.xlsx", sheetname, "3", "D:E", "&&") == "41&&cat"
+        assert excel_operator.read_successive_cells("test.xlsx", sheetname, "3", "E") == "pig"
     finally:
         os.remove("test.xlsx")

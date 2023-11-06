@@ -1,5 +1,4 @@
 import openpyxl  
-from openpyxl.reader.excel import load_workbook  
 
 """ copy sheet partly from src_dir to dst_dir
   :param src_dir: source excel file
@@ -72,34 +71,13 @@ def read_successive_cells(filepath, sheetname, rows, columns, seperator = "\r\n"
     return ret.strip(seperator)
 
 
-""" write content to the assigned cell
-  :param filepath: target excel file
-  :param sheetname: excel's sheetname
-  :param row: the target cell's row
-  :param column: the target cell's column
-  :return: None
-"""
-def write_to_assigned_cell(filepath, sheetname, row, column, content):
-
-    wb = openpyxl.load_workbook(filename = filepath)
-    ws = wb[sheetname]
-
-    r,c = ws.max_row, ws.max_column
-    if row > r or column > c:
-        raise ValueError("row {0} or column {1} out of bounds".format(row, column))
-    
-    # 在Openpyxl中，行和列的编号都是从1开始的，而不是从0开始
-    ws.cell(row=row, column=column).value = content
-    wb.save(filepath)
-
-
 """
     :param filepath: target excel file
     :param sheetname: excel's sheetname
     :cell_values: the list of the cells to be modified, for example: [(1, 2, 'A'), (3, 4, 'B')]
-    :return: None
+    :return: if write operation successed
 """
-def write_to_cells(filepath, sheetname, cell_values):
+def write_to_cells(filepath, sheetname, cell_values, save_to=''):
 
     wb = openpyxl.load_workbook(filename = filepath)
     ws = wb[sheetname]
@@ -112,8 +90,27 @@ def write_to_cells(filepath, sheetname, cell_values):
             raise ValueError("row {0} or column {1} out of bounds".format(row, column))
         # 在Openpyxl中，行和列的编号都是从1开始的，而不是从0开始
         ws.cell(row=row, column=column).value = v[2]
-    wb.save(filepath)
+   
+    if (save_to is not None) and len(save_to) > 0:
+        try:
+            wb.save(save_to)
+        except Exception as e:
+            print(e)
+            return False
+    return True
         
+
+""" write content to a single cell
+  :param filepath: target excel file
+  :param sheetname: excel's sheetname
+  :param row: the target cell's row
+  :param column: the target cell's column
+  :return: if write operation successed
+"""
+def write_to_single_cell(filepath, sheetname, row, column, content, save_to=''):
+    return write_to_cells(filepath, sheetname, [(row, column, content)], save_to)
+
+
 
 """ parse the row info
   :param src_copy_row: which rows to be parsed.
