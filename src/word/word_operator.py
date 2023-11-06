@@ -1,6 +1,7 @@
 from docx import Document
 from docx.shared import RGBColor
 from docx.shared import Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from enum import Enum  
 
 # https://python-docx.readthedocs.io/en/latest/#
@@ -11,20 +12,22 @@ class RETUENED_STATUS(Enum):
     FAIL_TO_SAVE = 2
 
 
-default_styles = {'font': {'name': '宋体', 'color': RGBColor(0,0,0), 'bold': False, 'underline': False, 'size': Pt(12)}}
+default_styles = {'font': {'name': '宋体', 'color': RGBColor(0,0,0), 'bold': False, 'underline': False, 'size': Pt(12)},
+'paragraph_format': {'alignment': WD_ALIGN_PARAGRAPH.LEFT, 'left_indent': Pt(2)}}
 
-'''set the paragraph styles
+'''set the paragraph font styles
     :param para: the paragraph style object to be set
     :param styles: a dict accroding to the reference: https://python-docx.readthedocs.io/en/latest/api/style.html#docx.styles.style.ParagraphStyle
 '''
-def set_paragraph_styles(para_style, styles):
+def set_font_styles(para, styles):
     if styles['font'] is None:
         return
-    para_style.font.name = styles['font']['name'] if styles['font']['name'] is not None else default_styles['font']['name']
-    para_style.font.color.rgb = styles['font']['color'] if styles['font']['color'] is not None else default_styles['font']['color']
-    para_style.font.bold = styles['font']['bold'] if styles['font']['bold'] is not None else default_styles['font']['bold']
-    para_style.font.underline = styles['font']['underline'] if styles['font']['underline'] is not None else default_styles['font']['underline']
-    para_style.font.size = styles['font']['size'] if styles['font']['size'] is not None else default_styles['font']['size']
+
+    para.font.name = styles['font']['name'] if styles['font']['name'] is not None else default_styles['font']['name']
+    para.font.color.rgb = styles['font']['color'] if styles['font']['color'] is not None else default_styles['font']['color']
+    para.font.bold = styles['font']['bold'] if styles['font']['bold'] is not None else default_styles['font']['bold']
+    para.font.underline = styles['font']['underline'] if styles['font']['underline'] is not None else default_styles['font']['underline']
+    para.font.size = styles['font']['size'] if styles['font']['size'] is not None else default_styles['font']['size']
 
 '''add content in end of the doc
    :param doc: the word document to open
@@ -35,8 +38,7 @@ def set_paragraph_styles(para_style, styles):
 '''
 def add_to_end(doc, content, save_to= '', styles=default_styles):
     para = doc.add_paragraph().add_run(content)
-    set_paragraph_styles(para, styles)
-    
+    set_font_styles(para, styles)
     if (save_to is not None) and len(save_to) > 0:
         try:
             doc.save(save_to)
@@ -59,9 +61,9 @@ def add_before_text(doc, keyword, content, stop = True, save_to= '', styles = de
     ret = RETUENED_STATUS.NOT_CHANGED.value
     for para in doc.paragraphs:
         if para.text == keyword:
-            para.insert_paragraph_before(content)
+            newPara = para.insert_paragraph_before().add_run(content)
             ret = RETUENED_STATUS.SUCCESS.value
-            set_paragraph_styles(para.style, styles)
+            set_font_styles(newPara, styles) 
             if stop:
                 break
     
@@ -90,7 +92,7 @@ def replace_para(doc, keyword, content, stop = True, save_to= '', styles = defau
         if para.text == keyword:
             para.text = content
             ret = RETUENED_STATUS.SUCCESS.value
-            set_paragraph_styles(para.style, styles)
+            set_font_styles(para.style, styles)
             if stop:
                 break
         
