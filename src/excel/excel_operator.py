@@ -72,14 +72,14 @@ def read_successive_cells(filepath, sheetname, rows, columns, seperator = "\r\n"
 
 
 """
-    :param filepath: target excel file
+    :param source: the excel file path or workbook
     :param sheetname: excel's sheetname
     :cell_values: the list of the cells to be modified, for example: [(1, 2, 'A'), (3, 4, 'B')]
-    :return: if write operation successed
+    :return: the workbook of source if succeed else None
 """
-def write_to_cells(filepath, sheetname, cell_values, save_to=''):
+def write_to_cells(source, sheetname, cell_values, save_to=''):
 
-    wb = openpyxl.load_workbook(filename = filepath)
+    wb = openpyxl.load_workbook(filename = source) if isinstance(source, str) else source
     ws = wb[sheetname]
 
     r,c = ws.max_row, ws.max_column
@@ -90,25 +90,52 @@ def write_to_cells(filepath, sheetname, cell_values, save_to=''):
         # 在Openpyxl中，行和列的编号都是从1开始的，而不是从0开始
         ws.cell(row=row, column=column).value = v[2]
    
-    if (save_to is not None) and len(save_to) > 0:
+    return wb if save_excel(wb, save_to) == True else None
+
+        
+
+""" write content to a single cell
+  :param source: the excel file path or workbook
+  :param sheetname: excel's sheetname
+  :param row: the target cell's row
+  :param column: the target cell's column
+  :return: the workbook of source if succeed else None
+"""
+def write_to_single_cell(source, sheetname, row, column, content, save_to=''):
+    return write_to_cells(source, sheetname, [(row, column, content)], save_to)
+
+
+""" insert rows into source excel sheet from start_row to next count row
+  :param source: the excel file path or workbook
+  :param sheetname: excel's sheetname
+  :param row: the target cell's row
+  :param column: the target cell's column
+  :return: the workbook of source if succeed else None
+"""
+def insert_rows(source, sheetname, start_row, count, cell_values, save_to=''):
+    wb = openpyxl.load_workbook(filename = source) if isinstance(source, str) else source
+    ws = wb[sheetname]
+    try:
+        ws.insert_rows(start_row, count)
+    except Exception as e:
+        print(e)
+        return None
+    
+    return write_to_cells(wb, sheetname, cell_values, save_to)
+
+'''save workbook wb to the dest_path
+    :param wb: workbook to be save
+    :param dest_path: where to save the workbook
+    :return True if no error happend
+'''
+def save_excel(wb, dest_path):
+    if (dest_path is not None) and len(dest_path) > 0:
         try:
-            wb.save(save_to)
+            wb.save(dest_path)
         except Exception as e:
             print(e)
             return False
     return True
-        
-
-""" write content to a single cell
-  :param filepath: target excel file
-  :param sheetname: excel's sheetname
-  :param row: the target cell's row
-  :param column: the target cell's column
-  :return: if write operation successed
-"""
-def write_to_single_cell(filepath, sheetname, row, column, content, save_to=''):
-    return write_to_cells(filepath, sheetname, [(row, column, content)], save_to)
-
 
 
 """ parse the row info
