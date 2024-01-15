@@ -104,3 +104,79 @@ def replace_para(doc, keyword, content, stop = True, save_to= '', styles = defau
             ret = RETUENED_STATUS.FAIL_TO_SAVE.value
 
     return ret
+
+
+
+'''
+替换段落中的字符串,做法整体是两种:
+1. 对paragraph中的文字进行替换(replace_para)。但是这有一个问题,原来整段的文字格式都会丢失。
+2. 遍历paragraph.runs中,对其中的每一段文字进行判断和替换。有个漏洞,就是需要被替换的字符串可能会被拆分到多个run中,导致匹配不到
+
+相对比较好的解决办法：
+对runs中的内容进行一定程度的拼接,但是有缺点,部分文字的样式可能会消失,可以尽量让每一段文字的样式保持一致来避免这种情况。
+
+:param doc: the word document to open
+:param keyword: the keyword to be replaced
+:param content: the content to replace the keyword
+:param save_to: indicates where to save the modified doc
+:return RETUENED_STATUS
+'''
+def replace_paragraph_text(doc, keyword, content, save_to= ''):
+    for paragraph in doc.paragraphs:
+        if keyword not in paragraph.text:
+            continue
+        tmp = ''
+        runs = paragraph.runs
+        for i, run in enumerate(runs):
+            tmp += run.text  # 合并run字符串
+            if keyword in tmp:
+                # 如果存在匹配得字符串,那么将当前得run替换成合并后得字符串
+                run.text = run.text.replace(run.text, tmp)
+                run.text = run.text.replace(keyword, content)
+                tmp = ''
+            else:
+                # 如果没匹配到目标字符串则把当前run置空
+                run.text = run.text.replace(run.text, '')
+            if i == len(runs) - 1:
+                # 如果是当前段落一直没有符合规则得字符串直接将当前run替换为tmp
+                run.add_text(tmp)
+
+    if (save_to is not None) and len(save_to) > 0:
+        try:
+            doc.save(save_to)
+        except Exception as e:
+            print(e)
+            return RETUENED_STATUS.FAIL_TO_SAVE.value
+
+    return RETUENED_STATUS.SUCCESS.value
+
+
+'''替换table某个cell中的text
+:param doc: the word document to open
+:param keyword: the keyword to be replaced
+:param content: the content to replace the keyword
+:param save_to: indicates where to save the modified doc
+:return RETUENED_STATUS
+'''
+def replace_table_cell_text(doc, keyword, content, save_to= ''):
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                # 如果只是为了内容,直接替换cell.text,但是为了保存原有格式,需要将每个单元格的文本当作一段看待,以此提取出run来不修改原格式
+                for paragraph in cell.paragraphs:
+                    if keyword in paragraph.text:
+                        has_replaced = False
+                        for run in paragraph.runs:
+                            run.clear()
+                            if not has_replaced:
+                                run.add_text(content)
+                                has_replaced = True
+
+    if (save_to is not None) and len(save_to) > 0:
+        try:
+            doc.save(save_to)
+        except Exception as e:
+            print(e)
+            return RETUENED_STATUS.FAIL_TO_SAVE.value
+
+    return RETUENED_STATUS.SUCCESS.value
